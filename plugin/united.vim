@@ -14,13 +14,14 @@ else
 endif
 
 " Module dependencies -------------------------------------------------- {{{
-  NeoBundle 'Shougo/unite.vim', {'depends': [
-  \    ['Shougo/vimproc.vim', {'build': {'mac': 'make -f make_mac.mak'}}]
-  \  ]}
-  NeoBundle 'Shougo/unite-help', {'unite_sources': 'help'}
+  NeoBundle 'Shougo/unite.vim'
+  NeoBundle 'Shougo/vimproc.vim'
+  NeoBundle 'Shougo/vimfiler.vim'
   NeoBundle 'h1mesuke/unite-outline'
   NeoBundle 'osyo-manga/unite-quickfix'
-  NeoBundle 'thinca/vim-unite-history'
+  NeoBundleLazy 'thinca/vim-unite-history', {'unite_sources' : ['history/command', 'history/search']}
+  NeoBundleLazy 'Shougo/unite-build', {'unite_sources': 'build'}
+  NeoBundleLazy 'Shougo/unite-help', {'unite_sources': 'help'}
 " }}}
 
 " Unite settings ------------------------------------------------------- {{{
@@ -49,5 +50,25 @@ endif
   nnoremap <leader>o  :Unite -buffer-name=outline outline<cr>
   nnoremap <leader>/  :Unite -buffer-name=search -no-quit grep:.<cr>
   nnoremap <leader>h  :Unite -buffer-name=history history<cr>
+
+  " Vimfiler
+  let s:bundle = neobundle#get('vimfiler.vim')
+  function! s:bundle.hooks.on_source(bundle)
+    let g:vimfiler_as_default_explorer = 1
+    let g:vimfiler_safe_mode_by_default = 0
+    let g:vimfiler_execute_file_list = {}
+    for s:ft in split('pdf,png,jpg,gif', ',')
+      let g:vimfiler_execute_file_list[s:ft] = 'open'
+    endfor
+    augroup Vimfiler
+      autocmd!
+      autocmd FileType vimfiler nunmap <buffer> <TAB>
+      autocmd FileType vimfiler nunmap <buffer> <C-l>
+      autocmd FileType vimfiler nnoremap <buffer> <C-l> <ESC><C-w>l
+      autocmd FileType vimfiler nmap <buffer> <F5> <Plug>(vimfiler_redraw_screen)
+    augroup END
+  endfunction
+  unlet s:bundle
+
 " }}}
 
